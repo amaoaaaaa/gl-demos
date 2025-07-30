@@ -20,6 +20,7 @@ export default defineNuxtConfig({
         ],
     },
     app: {
+        baseURL: "/gl-demos/",
         head: {
             title: "GL Demos",
             titleTemplate: "%s - GL Demos",
