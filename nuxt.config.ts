@@ -12,7 +12,12 @@ export default defineNuxtConfig({
         },
     },
     vite: {
-        plugins: [glsl()],
+        plugins: [
+            glsl({
+                include: ["**/*.vert", "**/*.frag"],
+                exclude: ["node_modules", ".git"],
+            }),
+        ],
     },
     app: {
         head: {
