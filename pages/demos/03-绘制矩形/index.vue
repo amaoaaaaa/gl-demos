@@ -3,8 +3,8 @@
 </template>
 
 <script lang="ts" setup>
-import vs from "./shader.vert?raw";
-import fs from "./shader.frag?raw";
+import vs from "./shader.vert";
+import fs from "./shader.frag";
 
 useHead({
     title: "03-绘制矩形",
