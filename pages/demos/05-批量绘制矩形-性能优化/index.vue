@@ -1,7 +1,7 @@
 <template>
     <canvas ref="canvas" class="border" width="400" height="400"></canvas>
 
-    <div class="text-xs text-white mt-2">
+    <div class="text-xs text-red-500 mt-2">
         <p>矩形数量：{{ RECT_COUNT }} 个</p>
         <p>绘制耗时：{{ Math.round(timeUsage) }}ms</p>
     </div>
@@ -56,32 +56,51 @@ onMounted(() => {
     const positions = new Float32Array(RECT_COUNT * VERTICES_PER_RECT * COMPONENTS_PER_VERTEX);
     const colors = new Float32Array(RECT_COUNT * VERTICES_PER_RECT * COLOR_COMPONENTS);
 
+    /**
+     * 更新矩形缓冲区数据
+     * 该函数用于生成随机矩形的顶点位置和颜色数据，并更新到对应的缓冲区中
+     *
+     * @description 该函数会循环生成指定数量的矩形，为每个矩形计算4个顶点的坐标，
+     * 并为每个顶点设置相同的随机颜色，最后将这些数据写入位置缓冲区和颜色缓冲区
+     */
     function updateBuffers() {
+        // 循环处理每个矩形
         for (let i = 0; i < RECT_COUNT; i++) {
+            // 生成矩形四个顶点的坐标
+            // 通过随机数生成矩形的左上角坐标
             const tlX = random(0, 400);
             const tlY = random(0, 400);
+            // 右上角Y坐标与左上角相同，X坐标随机生成
             const trX = random(0, 400);
             const trY = tlY;
+            // 右下角X坐标与右上角相同，Y坐标随机生成
             const brX = trX;
             const brY = random(0, 400);
+            // 左下角X坐标与左上角相同，Y坐标与右下角相同
             const blX = tlX;
             const blY = brY;
 
+            // 计算当前矩形在位置缓冲区中的偏移量
             const offsetPos = i * VERTICES_PER_RECT * COMPONENTS_PER_VERTEX;
+            // 将矩形的6个顶点坐标（两个三角形组成一个矩形）写入位置缓冲区
             positions.set([tlX, tlY, blX, blY, trX, trY, trX, trY, brX, brY, blX, blY], offsetPos);
 
+            // 计算当前矩形在颜色缓冲区中的偏移量
             const offsetCol = i * VERTICES_PER_RECT * COLOR_COMPONENTS;
+            // 生成随机颜色
             const color = randomColor();
-            // 每个顶点都用相同颜色
+            // 为矩形的每个顶点设置相同的颜色
             for (let j = 0; j < VERTICES_PER_RECT; j++) {
                 colors.set(color, offsetCol + j * COLOR_COMPONENTS);
             }
         }
     }
 
+    //  初始化位置缓冲区，分配GPU内存空间
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, positions.byteLength, gl.DYNAMIC_DRAW);
 
+    // 初始化颜色缓冲区，分配GPU内存空间
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, colors.byteLength, gl.DYNAMIC_DRAW);
 

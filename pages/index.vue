@@ -17,6 +17,7 @@ import { sortBy } from "lodash-es";
 const routes = sortBy(
     useRouter()
         .getRoutes()
+        .filter((route) => route.path.startsWith("/demos"))
         .map((route) => ({
             path: route.path,
             name: route.name as string,

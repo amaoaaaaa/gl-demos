@@ -1,7 +1,7 @@
 <template>
     <canvas ref="canvas" class="border" width="400" height="400"></canvas>
 
-    <div class="text-xs text-white mt-2">
+    <div class="text-xs text-red-500 mt-2">
         <p>矩形数量：{{ RECT_COUNT }} 个</p>
         <p>绘制耗时：{{ Math.round(timeUsage) }}ms</p>
     </div>
