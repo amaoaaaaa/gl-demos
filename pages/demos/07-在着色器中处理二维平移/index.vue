@@ -31,7 +31,7 @@ import vs from "./shader.vert";
 import fs from "./shader.frag";
 
 useHead({
-    title: "06-二维平移",
+    title: "07-在着色器中处理二维平移",
 });
 
 const CANVAS_WIDTH = 400;
@@ -46,41 +46,12 @@ const translation = reactive({
     y: 40,
 });
 
-let gl: WebGLRenderingContext | undefined | null;
-const drawScene = () => {
-    if (!gl) return;
-
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    const { x, y } = translation;
-
-    // 计算新的顶点位置，并传给着色器
-    const positions = [
-        // 三角形1
-        x,
-        y,
-        x,
-        y + RECT_HEIGHT,
-        x + RECT_WIDTH,
-        y,
-        // 三角形2
-        x + RECT_WIDTH,
-        y,
-        x + RECT_WIDTH,
-        y + RECT_HEIGHT,
-        x,
-        y + RECT_HEIGHT,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-    // 绘制两个三角形拼成矩形，共6个点
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
+const drawScene = ref(() => {});
 
 onMounted(() => {
     // ----------- 初始化（仅执行一次） -----------
 
-    gl = canvas.value?.getContext("webgl");
+    const gl = canvas.value?.getContext("webgl");
     if (!gl) return;
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vs);
@@ -93,6 +64,7 @@ onMounted(() => {
     const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     const resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
     const colorUniformLocation = gl.getUniformLocation(program, "u_color");
+    const translationUniformLocation = gl.getUniformLocation(program, "u_translation");
 
     gl.useProgram(program);
 
@@ -104,7 +76,36 @@ onMounted(() => {
     gl.enableVertexAttribArray(positionAttributeLocation);
     gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
 
-    drawScene();
+    // 只设置一次顶点数据
+    const positions = [
+        // 三角形1
+        0,
+        0,
+        0,
+        RECT_HEIGHT,
+        RECT_WIDTH,
+        0,
+        // 三角形2
+        RECT_WIDTH,
+        0,
+        RECT_WIDTH,
+        RECT_HEIGHT,
+        0,
+        RECT_HEIGHT,
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+    drawScene.value = () => {
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // 把当前偏移量传给着色器处理，避免在js中进行大量计算
+        gl.uniform2f(translationUniformLocation, translation.x, translation.y);
+
+        // 绘制两个三角形拼成矩形，共6个点
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    };
+
+    drawScene.value();
 });
 </script>
 
