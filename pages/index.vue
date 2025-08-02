@@ -1,13 +1,26 @@
 <template>
-    <div class="flex flex-col p-3 w-72">
-        <RouterLink
-            v-for="(item, index) in routes"
-            :key="index"
-            :to="item.path"
-            class="py-1 hover:text-violet-500"
-        >
-            {{ item.name.replace("demos-", "") }}
+    <!-- <div class="grid grid-cols-2 gap-5 p-3">
+        <RouterLink v-for="(item, index) in routes" :key="index" :to="item.path">
+            <vs-card>
+                <template #title>
+                    <h3>{{ item.name }}</h3>
+                </template>
+
+                <template #img>
+                    <img :src="item.thumbnail" alt="thumbnail" />
+                </template>
+
+                <template #text>
+                    <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit.</p>
+                </template>
+            </vs-card>
         </RouterLink>
+    </div> -->
+
+    <div class="flex items-center flex-wrap">
+        <vs-button v-for="(item, index) in routes" :key="index" @click="$router.push(item.path)">
+            {{ item.name }}
+        </vs-button>
     </div>
 </template>
 
@@ -18,10 +31,15 @@ const routes = sortBy(
     useRouter()
         .getRoutes()
         .filter((route) => route.path.startsWith("/demos"))
-        .map((route) => ({
-            path: route.path,
-            name: route.name as string,
-        })),
+        .map((route) => {
+            const name = (route.name as string).replace("demos-", "");
+
+            return {
+                path: route.path,
+                name: name,
+                thumbnail: `/demos/thumbnails/${name}.png`,
+            };
+        }),
     "name"
 );
 </script>
